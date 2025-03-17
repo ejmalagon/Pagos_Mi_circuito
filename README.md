@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <h1>Registro de Pagos</h1>
+    <h1>Registro de pagos cuota de Mi circuito</h1>
     <input type="password" id="clave" placeholder="Ingrese clave de administrador">
     <button onclick="validarClave()">Acceder</button>
     <table>
