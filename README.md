@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -57,3 +57,55 @@
         const meses = ["sept", "oct", "nov", "dic", "ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep"];
         
         function verificarClave() {
+            const password = document.getElementById("password").value;
+            if (password === claveCorrecta) {
+                esAdmin = true;
+                alert("Acceso concedido");
+                mostrarTabla();
+            } else {
+                alert("Clave incorrecta");
+            }
+        }
+
+        function mostrarTabla() {
+            const tabla = document.getElementById("tablaPagos");
+            tabla.innerHTML = "";
+
+            nombres.forEach((nombre, i) => {
+                const fila = document.createElement("tr");
+                fila.innerHTML = `<td>${nombre}</td>`;
+                
+                meses.forEach((mes, j) => {
+                    let estado = obtenerEstadoPago(i, j);
+                    let clase = estado ? "pagado" : "no-pagado";
+                    let botonHTML = esAdmin ? `<button onclick="togglePago(${i}, ${j})">✓</button>` : "";
+
+                    fila.innerHTML += `<td class="${clase}" id="pago-${i}-${j}">${botonHTML}</td>`;
+                });
+
+                tabla.appendChild(fila);
+            });
+        }
+
+        function togglePago(persona, mes) {
+            let estado = obtenerEstadoPago(persona, mes);
+            guardarEstadoPago(persona, mes, !estado);
+            mostrarTabla();
+        }
+
+        function obtenerEstadoPago(persona, mes) {
+            let pagos = JSON.parse(localStorage.getItem("pagos")) || {};
+            return pagos[`${persona}-${mes}`] || false;
+        }
+
+        function guardarEstadoPago(persona, mes, estado) {
+            let pagos = JSON.parse(localStorage.getItem("pagos")) || {};
+            pagos[`${persona}-${mes}`] = estado;
+            localStorage.setItem("pagos", JSON.stringify(pagos));
+        }
+
+        mostrarTabla(); // Cargar la tabla al inicio
+    </script>
+
+</body>
+</html>
