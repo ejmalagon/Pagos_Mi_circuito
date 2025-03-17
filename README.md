@@ -25,27 +25,28 @@
         <thead>
             <tr>
                 <th>Nombre</th>
-                <th>Sept</th>
-                <th>Oct</th>
-                <th>Nov</th>
-                <th>Dic</th>
-                <th>Ene</th>
-                <th>Feb</th>
-                <th>Mar</th>
-                <th>Abr</th>
-                <th>May</th>
-                <th>Jun</th>
-                <th>Jul</th>
-                <th>Ago</th>
-                <th>Sep</th>
+                <th>Sept</th><th>Oct</th><th>Nov</th><th>Dic</th>
+                <th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th>
+                <th>May</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Sep</th>
+                <th>Saldo</th> <!-- Nueva columna -->
             </tr>
         </thead>
         <tbody id="tablaPagos"></tbody>
+        <tfoot>
+            <tr>
+                <td><b>Total recogido:</b></td>
+                <td id="total-sept">0</td> <td id="total-oct">0</td> <td id="total-nov">0</td> <td id="total-dic">0</td>
+                <td id="total-ene">0</td> <td id="total-feb">0</td> <td id="total-mar">0</td> <td id="total-abr">0</td>
+                <td id="total-may">0</td> <td id="total-jun">0</td> <td id="total-jul">0</td> <td id="total-ago">0</td> <td id="total-sep">0</td>
+                <td></td>
+            </tr>
+        </tfoot>
     </table>
 
     <script>
         const claveCorrecta = "admin123"; // Cambia esto por tu clave real
         let esAdmin = false;
+        const cuotaMensual = 150000;
 
         const nombres = [
             "Alcaparros", "Almendros", "Arrayanes", "Bilbao", "Bosques de Suba", "Corinto",
@@ -71,7 +72,10 @@
             const tabla = document.getElementById("tablaPagos");
             tabla.innerHTML = "";
 
+            let totalPorMes = Array(meses.length).fill(0); // Inicializa el total de cada mes en 0
+
             nombres.forEach((nombre, i) => {
+                let pagosRealizados = 0;
                 const fila = document.createElement("tr");
                 fila.innerHTML = `<td>${nombre}</td>`;
                 
@@ -80,10 +84,24 @@
                     let clase = estado ? "pagado" : "no-pagado";
                     let botonHTML = esAdmin ? `<button onclick="togglePago(${i}, ${j})">✓</button>` : "";
 
+                    if (estado) {
+                        pagosRealizados += cuotaMensual; // Sumar si ha pagado
+                        totalPorMes[j] += cuotaMensual; // Sumar al total del mes
+                    }
+
                     fila.innerHTML += `<td class="${clase}" id="pago-${i}-${j}">${botonHTML}</td>`;
                 });
 
+                // Calcular saldo de la persona
+                let saldoPendiente = (meses.length * cuotaMensual) - pagosRealizados;
+                fila.innerHTML += `<td><b>$${saldoPendiente.toLocaleString()}</b></td>`;
+
                 tabla.appendChild(fila);
+            });
+
+            // Actualizar los totales de cada mes
+            meses.forEach((mes, j) => {
+                document.getElementById(`total-${mes}`).innerText = `$${totalPorMes[j].toLocaleString()}`;
             });
         }
 
