@@ -1,32 +1,61 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control de Pagos</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+            min-width: 100px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        /* Fijar la primera columna (Personas) */
+        th:first-child, td:first-child {
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 2;
+        }
+        /* Fijar la segunda columna (Saldo) */
+        th:nth-child(2), td:nth-child(2) {
+            position: sticky;
+            left: 120px; /* Ajustar según el ancho de la primera columna */
+            background: white;
+            z-index: 2;
+        }
+        /* Permitir desplazamiento horizontal */
+        .tabla-contenedor {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+    </style>
     <script type="module">
-        // Importar Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCAhgkaAYfRnNaMOd-fDBOT-JU99-D0Jbg",
-  authDomain: "mi-circuito-d3dfc.firebaseapp.com",
-  databaseURL: "https://mi-circuito-d3dfc-default-rtdb.firebaseio.com",
-  projectId: "mi-circuito-d3dfc",
-  storageBucket: "mi-circuito-d3dfc.firebasestorage.app",
-  messagingSenderId: "433537289978",
-  appId: "1:433537289978:web:44accf1c25277fca540343",
-  measurementId: "G-FXNEYDK896"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAhgkaAYfRnNaMOd-fDBOT-JU99-D0Jbg",
+            authDomain: "mi-circuito-d3dfc.firebaseapp.com",
+            databaseURL: "https://mi-circuito-d3dfc-default-rtdb.firebaseio.com",
+            projectId: "mi-circuito-d3dfc",
+            storageBucket: "mi-circuito-d3dfc.appspot.com",
+            messagingSenderId: "433537289978",
+            appId: "1:433537289978:web:44accf1c25277fca540343",
+            measurementId: "G-FXNEYDK896"
+        };
 
-
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const pagosRef = ref(db, "pagos");
 
-        // Lista de personas
         const personas = [
             "Alcaparros", "Almendros", "Arrayanes", "Bilbao", "Bosques de Suba",
             "Corinto", "Costa Azul", "Costa Rica", "El Pinar", "Granados",
@@ -34,15 +63,13 @@ const firebaseConfig = {
             "Los Cerros", "Margaritas de Suba", "Nueva Tibabuyes", "Toscana"
         ];
 
-        // Lista de meses
         const meses = ["Sep-2024", "Oct-2024", "Nov-2024", "Dic-2024", "Ene-2025",
                        "Feb-2025", "Mar-2025", "Abr-2025", "May-2025", "Jun-2025",
                        "Jul-2025", "Ago-2025", "Sep-2025"];
 
         let pagos = {};
-        let admin = false; // Estado de autenticación
+        let admin = false;
 
-        // Cargar datos desde Firebase
         function cargarPagos() {
             onValue(pagosRef, (snapshot) => {
                 pagos = snapshot.val() || {};
@@ -50,29 +77,26 @@ const firebaseConfig = {
             });
         }
 
-        // Guardar pagos en Firebase (solo si es admin)
         function guardarPagos() {
             if (admin) {
                 set(pagosRef, pagos);
             }
         }
 
-        // Cambiar estado de pago (solo si es admin)
         function togglePago(persona, mes) {
-            if (!admin) return; // Si no es admin, no hace nada
+            if (!admin) return;
             let key = `${persona}-${mes}`;
             pagos[key] = !pagos[key];
             guardarPagos();
             mostrarTabla();
         }
 
-        // Mostrar tabla
         function mostrarTabla() {
-            let tabla = `<table border="1">
+            let tabla = `<table>
                 <tr>
                     <th>Persona</th>
-                    ${meses.map(m => `<th>${m}</th>`).join("")}
                     <th>Saldo</th>
+                    ${meses.map(m => `<th>${m}</th>`).join("")}
                 </tr>`;
 
             let totalPorMes = Array(meses.length).fill(0);
@@ -97,25 +121,23 @@ const firebaseConfig = {
                     }
                 });
 
-                fila += `<td><b>$${saldo.toLocaleString()}</b></td></tr>`;
+                fila = `<td><b>$${saldo.toLocaleString()}</b></td>` + fila + `</tr>`;
                 tabla += fila;
             });
 
-            // Agregar fila de totales
-            let filaTotales = `<tr><td><b>Total Recogido</b></td>`;
+            let filaTotales = `<tr><td><b>Total Recogido</b></td><td></td>`;
             totalPorMes.forEach(total => {
                 filaTotales += `<td><b>$${total.toLocaleString()}</b></td>`;
             });
-            filaTotales += `<td></td></tr>`;
+            filaTotales += `</tr>`;
 
             tabla += filaTotales + `</table>`;
-            document.getElementById("contenedor").innerHTML = tabla;
+            document.getElementById("tabla-contenedor").innerHTML = tabla;
         }
 
-        // Ingresar como administrador
         function login() {
             let clave = prompt("Ingrese la clave de administrador:");
-            if (clave === "1234") { // 🔹 Cambia "1234" por tu clave real
+            if (clave === "1234") {
                 admin = true;
                 alert("✅ Acceso concedido");
             } else {
@@ -132,6 +154,6 @@ const firebaseConfig = {
 <body>
     <h1>Control de Pagos</h1>
     <button onclick="login()">🔑 Ingresar como Administrador</button>
-    <div id="contenedor"></div>
+    <div class="tabla-contenedor" id="tabla-contenedor"></div>
 </body>
 </html>
