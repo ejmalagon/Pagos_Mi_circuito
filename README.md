@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -16,25 +17,26 @@
         }
         th {
             background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            z-index: 2;
         }
         /* Fijar la primera columna (Personas) */
         th:first-child, td:first-child {
             position: sticky;
             left: 0;
             background: white;
-            z-index: 2;
-        }
-        /* Fijar la segunda columna (Saldo) */
-        th:nth-child(2), td:nth-child(2) {
-            position: sticky;
-            left: 120px; /* Ajustar según el ancho de la primera columna */
-            background: white;
-            z-index: 2;
+            z-index: 3;
         }
         /* Permitir desplazamiento horizontal */
         .tabla-contenedor {
             overflow-x: auto;
             max-width: 100%;
+        }
+        .saldo {
+            display: none;
+            font-weight: bold;
+            color: blue;
         }
     </style>
     <script type="module">
@@ -91,11 +93,17 @@
             mostrarTabla();
         }
 
+        function toggleSaldo(persona) {
+            let saldoElement = document.getElementById(`saldo-${persona}`);
+            if (saldoElement) {
+                saldoElement.style.display = saldoElement.style.display === "none" ? "block" : "none";
+            }
+        }
+
         function mostrarTabla() {
             let tabla = `<table>
                 <tr>
                     <th>Persona</th>
-                    <th>Saldo</th>
                     ${meses.map(m => `<th>${m}</th>`).join("")}
                 </tr>`;
 
@@ -104,7 +112,7 @@
 
             personas.forEach(persona => {
                 let saldo = 0;
-                let fila = `<tr><td><b>${persona}</b></td>`;
+                let fila = `<tr><td onclick="toggleSaldo('${persona}')" style="cursor:pointer;"><b>${persona}</b><br><span id="saldo-${persona}" class="saldo"></span></td>`;
 
                 meses.forEach((mes, index) => {
                     let key = `${persona}-${mes}`;
@@ -121,11 +129,19 @@
                     }
                 });
 
-                fila = `<td><b>$${saldo.toLocaleString()}</b></td>` + fila + `</tr>`;
+                fila += `</tr>`;
                 tabla += fila;
+
+                // Actualizar saldo en el elemento correspondiente
+                setTimeout(() => {
+                    let saldoElement = document.getElementById(`saldo-${persona}`);
+                    if (saldoElement) {
+                        saldoElement.textContent = `$${saldo.toLocaleString()}`;
+                    }
+                }, 0);
             });
 
-            let filaTotales = `<tr><td><b>Total Recogido</b></td><td></td>`;
+            let filaTotales = `<tr><td><b>Total donado</b></td>`;
             totalPorMes.forEach(total => {
                 filaTotales += `<td><b>$${total.toLocaleString()}</b></td>`;
             });
@@ -147,6 +163,7 @@
         }
 
         window.togglePago = togglePago;
+        window.toggleSaldo = toggleSaldo;
         window.login = login;
         cargarPagos();
     </script>
