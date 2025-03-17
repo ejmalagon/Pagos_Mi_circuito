@@ -42,7 +42,7 @@
     <script>
         const nombres = ["Alcaparros", "Almendros", "Arrayanes", "Bilbao", "Bosques de Suba", "Corinto", "Costa Azul", "Costa Rica", "El Pinar", "Granados", "Hatochico", "Imperial", "La Campiña", "Las Flores", "Lisboa", "Los Cerros", "Margaritas de Suba", "Nueva Tibabuyes", "Toscana"];
         const cuota = 150000;
-        const claveAdmin = "admin123";  // Cambia esta clave para mayor seguridad
+        const claveAdmin = "alejo";  // Cambia esta clave para mayor seguridad
         let pagos = {};
         let admin = false;
         
