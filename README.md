@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -19,6 +20,7 @@ const firebaseConfig = {
   measurementId: "G-FXNEYDK896"
 };
 
+
         // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -38,6 +40,7 @@ const firebaseConfig = {
                        "Jul-2025", "Ago-2025", "Sep-2025"];
 
         let pagos = {};
+        let admin = false; // Estado de autenticación
 
         // Cargar datos desde Firebase
         function cargarPagos() {
@@ -47,15 +50,18 @@ const firebaseConfig = {
             });
         }
 
-        // Guardar pagos en Firebase
+        // Guardar pagos en Firebase (solo si es admin)
         function guardarPagos() {
-            set(pagosRef, pagos);
+            if (admin) {
+                set(pagosRef, pagos);
+            }
         }
 
-        // Cambiar estado de pago
+        // Cambiar estado de pago (solo si es admin)
         function togglePago(persona, mes) {
+            if (!admin) return; // Si no es admin, no hace nada
             let key = `${persona}-${mes}`;
-            pagos[key] = !pagos[key]; // Alterna entre pagado (true) y no pagado (false)
+            pagos[key] = !pagos[key];
             guardarPagos();
             mostrarTabla();
         }
@@ -81,12 +87,12 @@ const firebaseConfig = {
                     let pagado = pagos[key];
 
                     if (pagado === undefined) {
-                        fila += `<td style="background:white;" onclick="togglePago('${persona}', '${mes}')"></td>`;
+                        fila += `<td style="background:white;" ${admin ? `onclick="togglePago('${persona}', '${mes}')"` : ""}></td>`;
                     } else if (pagado) {
-                        fila += `<td style="background:green; color:white;" onclick="togglePago('${persona}', '${mes}')">✔</td>`;
+                        fila += `<td style="background:green; color:white;" ${admin ? `onclick="togglePago('${persona}', '${mes}')"` : ""}>✔</td>`;
                         totalPorMes[index] += cuotaMensual;
                     } else {
-                        fila += `<td style="background:red; color:white;" onclick="togglePago('${persona}', '${mes}')">✘</td>`;
+                        fila += `<td style="background:red; color:white;" ${admin ? `onclick="togglePago('${persona}', '${mes}')"` : ""}>✘</td>`;
                         saldo += cuotaMensual;
                     }
                 });
@@ -106,12 +112,26 @@ const firebaseConfig = {
             document.getElementById("contenedor").innerHTML = tabla;
         }
 
+        // Ingresar como administrador
+        function login() {
+            let clave = prompt("Ingrese la clave de administrador:");
+            if (clave === "1234") { // 🔹 Cambia "1234" por tu clave real
+                admin = true;
+                alert("✅ Acceso concedido");
+            } else {
+                alert("❌ Clave incorrecta");
+            }
+            mostrarTabla();
+        }
+
         window.togglePago = togglePago;
+        window.login = login;
         cargarPagos();
     </script>
 </head>
 <body>
     <h1>Control de Pagos</h1>
+    <button onclick="login()">🔑 Ingresar como Administrador</button>
     <div id="contenedor"></div>
 </body>
 </html>
