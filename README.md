@@ -167,7 +167,7 @@
 
         function login() {
             let clave = prompt("Ingrese la clave de administrador:");
-            if (clave === "1234") {
+            if (clave === "alejoperro") {
                 admin = true;
                 alert("✅ Acceso concedido");
             } else {
