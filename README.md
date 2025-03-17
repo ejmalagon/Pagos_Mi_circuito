@@ -27,6 +27,13 @@
             background: white;
             z-index: 3;
         }
+        /* Fijar la fila de los meses */
+        thead {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 2;
+        }
         /* Permitir desplazamiento horizontal */
         .tabla-contenedor {
             overflow-x: auto;
@@ -36,6 +43,9 @@
             display: none;
             font-weight: bold;
             color: blue;
+        }
+        #fila-totales {
+            display: none; /* Ocultar total recogido por defecto */
         }
     </style>
     <script type="module">
@@ -101,10 +111,13 @@
 
         function mostrarTabla() {
             let tabla = `<table>
-                <tr>
-                    <th>Persona</th>
-                    ${meses.map(m => `<th>${m}</th>`).join("")}
-                </tr>`;
+                <thead>
+                    <tr>
+                        <th>Persona</th>
+                        ${meses.map(m => `<th>${m}</th>`).join("")}
+                    </tr>
+                </thead>
+                <tbody>`;
 
             let totalPorMes = Array(meses.length).fill(0);
             let cuotaMensual = 150000;
@@ -131,7 +144,6 @@
                 fila += `</tr>`;
                 tabla += fila;
 
-                // Actualizar saldo en el elemento correspondiente
                 setTimeout(() => {
                     let saldoElement = document.getElementById(`saldo-${persona}`);
                     if (saldoElement) {
@@ -140,14 +152,17 @@
                 }, 0);
             });
 
-            let filaTotales = `<tr><td><b>Total donado</b></td>`;
+            let filaTotales = `<tr id="fila-totales"><td><b>Total Recogido</b></td>`;
             totalPorMes.forEach(total => {
                 filaTotales += `<td><b>$${total.toLocaleString()}</b></td>`;
             });
             filaTotales += `</tr>`;
 
-            tabla += filaTotales + `</table>`;
+            tabla += `</tbody>${admin ? filaTotales : ""}</table>`;
             document.getElementById("tabla-contenedor").innerHTML = tabla;
+
+            // Mostrar u ocultar el total recogido
+            document.getElementById("fila-totales").style.display = admin ? "table-row" : "none";
         }
 
         function login() {
