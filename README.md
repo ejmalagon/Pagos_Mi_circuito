@@ -113,7 +113,7 @@
             let tabla = `<table>
                 <thead>
                     <tr>
-                        <th>Persona</th>
+                        <th>Congregación</th>
                         ${meses.map(m => `<th>${m}</th>`).join("")}
                     </tr>
                 </thead>
